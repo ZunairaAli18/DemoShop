@@ -1,0 +1,12 @@
+{
+  "name": "demo-shop",
+  "version": "1.0.0",
+  "description": "Demo target app for Source to Sink",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4"
+  }
+}
