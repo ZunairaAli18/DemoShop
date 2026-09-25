@@ -6,7 +6,7 @@ function buildProfile(customer) {
 }
 
 async function orderPlaced(customer, order) {
-  log.info("Order placed", { order, customer });
+  log.info("Order placed", { orderId: order.id, customerId: customer.id });
   await sendToCrm("order_placed", {
     orderId: order.id,
     profile: buildProfile(customer),
