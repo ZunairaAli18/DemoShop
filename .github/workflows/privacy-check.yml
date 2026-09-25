@@ -1,108 +1,20 @@
 name: Privacy check
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-# Least-privilege: read code, write PR comments.
 permissions:
   contents: read
   pull-requests: write
   id-token: write
 
-# Cancel any in-flight run for the same PR when a new push arrives.
-concurrency:
-  group: privacy-check-pr-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
-
 jobs:
-  privacy-check:
+  privacy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
     steps:
-      # ── 1. Checkout ──────────────────────────────────────────────────────────
-      # fetch-depth: 0 gives us the full history so `git diff origin/<base>...HEAD`
-      # works correctly and Bob can read the real checked-out files.
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # ── 2. Node 24 ───────────────────────────────────────────────────────────
-      # The post-processing script uses Node's built-in fetch (Node ≥ 18).
-      - name: Set up Node 24
-        uses: actions/setup-node@v4
+      - uses: ZunairaAli18/SourceToSink/action@v1
         with:
-          node-version: 24
-
-      # ── 3. Install Bob Shell ─────────────────────────────────────────────────
-      # The installer prompts interactively; we pipe "1" and wrap it in
-      # `script -qec` to provide a fake TTY so it doesn't hang.
-      - name: Install Bob Shell
-        run: |
-          curl -fsSL https://bob.ibm.com/download/bobshell.sh -o install.sh
-          echo "1" | timeout 120 script -qec "bash install.sh" /dev/null
-
-      # ── 4. Build diff ────────────────────────────────────────────────────────
-      # Exclude internal/tooling paths that Bob doesn't need to review.
-      # If the diff exceeds 60 KB we truncate and flag it so the prompt is honest.
-      - name: Build PR diff
-        run: |
-          git diff origin/${{ github.base_ref }}...HEAD \
-            -- . \
-            ':(exclude).bob' \
-            ':(exclude)test' \
-            ':(exclude)scripts' \
-            ':(exclude).github' \
-            > pr.diff
-
-          DIFF_SIZE=$(wc -c < pr.diff)
-          echo "Diff size: ${DIFF_SIZE} bytes"
-          if [ "$DIFF_SIZE" -gt 61440 ]; then
-            truncate -s 61440 pr.diff
-            echo "" >> pr.diff
-            echo "... [diff truncated at 60 KB]" >> pr.diff
-            echo "DIFF_TRUNCATED=true" >> "$GITHUB_ENV"
-          else
-            echo "DIFF_TRUNCATED=false" >> "$GITHUB_ENV"
-          fi
-
-      # ── 5. Run Bob ───────────────────────────────────────────────────────────
-      # `|| true` keeps the step green; the JS script decides pass/fail.
-      # The prompt asks Bob to check out real files for line numbers and return
-      # a structured JSON findings block.
-      - name: Run Bob privacy reviewer
-        env:
-          BOB_API_KEY: ${{ secrets.BOB_API_KEY }}
-        run: |
-          DIFF_CONTENT=$(cat pr.diff)
-          TRUNCATION_NOTE=""
-          if [ "$DIFF_TRUNCATED" = "true" ]; then
-            TRUNCATION_NOTE=" (Note: the diff was truncated at 60 KB; only the first 60 KB is shown.)"
-          fi
-
-          PROMPT="Review this pull request diff for sensitive data leaks. The PR's code is checked out in the current directory, so read the real files for exact line numbers.${TRUNCATION_NOTE} Diff:\n${DIFF_CONTENT}"
-
-          timeout 300 bob run \
-            --mode privacy-reviewer \
-            -f json \
-            --accept-license \
-            --max-turns 15 \
-            --max-cost 0.5 \
-            "$PROMPT" > bob-output.json 2>&1 || true
-
-      # ── 6. Post results ───────────────────────────────────────────────────────
-      # The script reads bob-output.json, posts/updates a PR comment, sends the
-      # scan to the dashboard, and exits 1 if any high-severity finding was found.
-      - name: Post privacy check results
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WORKER_URL: ${{ secrets.WORKER_URL }}
-          SCAN_TOKEN: ${{ secrets.SCAN_TOKEN }}
-          REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        run: node .github/scripts/privacy-check.js
+          bob-api-key: ${{ secrets.BOB_API_KEY }}
