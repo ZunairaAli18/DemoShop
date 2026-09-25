@@ -1,0 +1,12 @@
+diff --git a/src/routes/orders.js b/src/routes/orders.js
+index f1e846f..6a4d64e 100644
+--- a/src/routes/orders.js
++++ b/src/routes/orders.js
+@@ -15,6 +15,7 @@ router.post("/", async (req, res) => {
+     id: nextOrderId++,
+     customerId: customer.id,
+     items: req.body.items || [],
++    note: req.body.note || "",
+   };
+ 
+   await orderPlaced(customer, order);
