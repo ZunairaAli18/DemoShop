@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime
 
 
 @dataclass
@@ -9,3 +10,4 @@ class User:
     phone: str
     cnic: str
     address: str
+    created_at: datetime = field(default_factory=datetime.utcnow)

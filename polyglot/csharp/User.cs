@@ -7,4 +7,5 @@ public class User
     public string Email { get; set; } = "";
     public string Phone { get; set; } = "";
     public string Cnic { get; set; } = "";
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
