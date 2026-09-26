@@ -7,14 +7,12 @@ import (
 	"os"
 )
 
-type crmContact struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 // SyncToCrm sends a user signup event to the external CRM.
 func SyncToCrm(u User) error {
-	body, err := json.Marshal(crmContact{ID: u.ID, Name: u.Name})
+	body, err := json.Marshal(struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	}{ID: u.ID, Name: u.Name})
 	if err != nil {
 		return err
 	}
