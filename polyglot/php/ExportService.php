@@ -9,6 +9,8 @@ class ExportService
 {
     public function exportUser(User $user): void
     {
-        Storage::put("exports/users/{$user->id}.json", json_encode(['id' => $user->id, 'name' => $user->name]));
+        $summary = ['id' => $user->id, 'name' => $user->name];
+
+        Storage::put("exports/users/{$user->id}.json", json_encode($summary));
     }
 }
