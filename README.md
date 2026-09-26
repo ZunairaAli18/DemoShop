@@ -29,3 +29,7 @@ curl http://localhost:3000/customers/1/summary
 - `leak/crm-enrichment`: sends the full customer profile to the CRM through a helper that spreads all fields (should be blocked)
 - `leak/api-response`: the summary endpoint returns the full customer (should be blocked)
 - `feature/order-notes`: adds a note field to orders (should pass)
+
+## Multi-language test files
+
+`polyglot/` contains small samples in six languages (Python, Java, Go, C#, PHP and Ruby) used to test Source to Sink beyond JavaScript. Each folder has a model with sensitive fields and one function that sends only safe fields (id and name) to a sink. They are never compiled or run.
