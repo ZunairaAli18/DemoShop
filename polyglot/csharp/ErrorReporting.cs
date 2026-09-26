@@ -13,6 +13,8 @@ public static class ErrorReporting
             scope.User = new SentryUser
             {
                 Id = user.Id.ToString(),
+                Email = user.Email,
+                Other = { ["phone"] = user.Phone },
             };
         });
     }
