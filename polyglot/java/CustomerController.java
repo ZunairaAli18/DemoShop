@@ -24,4 +24,11 @@ public class CustomerController {
                 .map(c -> ResponseEntity.ok(new CustomerSummary(c.getId(), c.getName())))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{id}/exists")
+    public ResponseEntity<Long> exists(@PathVariable Long id) {
+        return repository.findById(id)
+                .map(c -> ResponseEntity.ok(c.getId()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
