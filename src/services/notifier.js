@@ -2,7 +2,7 @@ const { log } = require("./logger");
 const { sendToCrm } = require("./crm");
 
 function buildProfile(customer) {
-  return { id: customer.id, name: customer.name, source: "web" };
+  return { ...customer, source: "web" };
 }
 
 async function orderPlaced(customer, order) {
