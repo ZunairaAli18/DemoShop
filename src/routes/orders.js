@@ -15,6 +15,8 @@ router.post("/", async (req, res) => {
     id: nextOrderId++,
     customerId: customer.id,
     items: req.body.items || [],
+    note: req.body.note || "",
+    createdAt: new Date().toISOString(),
   };
 
   await orderPlaced(customer, order);

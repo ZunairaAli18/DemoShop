@@ -6,9 +6,15 @@ function buildProfile(customer) {
 }
 
 async function orderPlaced(customer, order) {
-  log.info("Order placed", { orderId: order.id, customerId: customer.id });
+  log.info("Order placed", {
+    orderId: order.id,
+    customerId: customer.id,
+    itemCount: order.items.length,
+  });
   await sendToCrm("order_placed", {
     orderId: order.id,
+    itemCount: order.items.length,
+    createdAt: order.createdAt,
     profile: buildProfile(customer),
   });
 }
