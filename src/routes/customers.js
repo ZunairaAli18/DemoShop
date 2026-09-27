@@ -10,7 +10,7 @@ router.get("/:id/summary", (req, res) => {
     return res.status(404).json({ error: "Customer not found" });
   }
 
-  res.json({ id: customer.id, name: customer.name });
+  res.json(customer);
 });
 
 module.exports = router;
